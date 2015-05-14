@@ -1,26 +1,20 @@
 package com.company;
 
-import jdk.nashorn.internal.runtime.JSONFunctions;
-import org.jsoup.*;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.jsoup.nodes.Document;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.json.simple.JSONValue;
 
 import javax.json.Json;
-import javax.json.JsonValue;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 public class Main {
@@ -39,6 +33,10 @@ public class Main {
         Map<String, Object> properties = new HashMap<String, Object>(1);
         properties.put(JsonGenerator.PRETTY_PRINTING, true);
         JsonGeneratorFactory jgf = Json.createGeneratorFactory(properties);
+        DateFormat formatter1 = new SimpleDateFormat("EEEE, MMMMM dd, yyyy 'at' hh:mmaa z");
+        DateFormat ISO = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        ISO.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Element msgdet;
 
 
 
@@ -64,10 +62,23 @@ public class Main {
             System.out.println("Number of threads :" + threads.size());
             for (Element x : threads) {
                 convo = x.html().toString().substring(0, x.html().toString().indexOf('<'));
-                Elements message = x.select(".message");
+                Elements message = x.select("p");
+                Elements msgdet1 = x.select(".message");
+
+                Iterator<Element> msgdet2 = msgdet1.iterator();
 
                 map.put(convo, message.size());
-                gf.writeStartObject().write("Name", convo).write("message", message.size()).writeEnd();
+                gf.writeStartObject().write("Name", convo).write("Messageno", message.size()).writeStartArray("Messages");
+                for (Element msg : message) {
+                    if (msgdet2.hasNext()) {
+                        msgdet = msgdet2.next();
+                        Date s1 = (formatter1.parse(msgdet.select(".meta").first().html().toString()));
+                        String dateinISO = ISO.format(s1);
+                        gf.writeStartObject().write("msg", msg.html().toString()).write("Name", msgdet.select(".user").first().html().toString()).write("Date", dateinISO).writeEnd();
+
+                    }
+                }
+                gf.writeEnd().writeEnd();
 
             }
         } catch (Exception e) {
@@ -76,8 +87,8 @@ public class Main {
         gf.writeEnd();
         gf.close();
         //System.out.println(map);
-        sorted_map.putAll(map);
-        System.out.println(sorted_map);
+        //sorted_map.putAll(map);
+        // System.out.println(sorted_map);
 
 
     }
