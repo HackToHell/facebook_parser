@@ -54,6 +54,7 @@ public class Main {
         FileWriter fw = new FileWriter(output);
         BufferedWriter bw = new BufferedWriter(fw);
         JsonGenerator gf = jgf.createGenerator(bw);
+        String convo;
         gf.writeStartArray();
         try {
             // Document tester = Jsoup.parse(test);
@@ -62,21 +63,11 @@ public class Main {
             Elements threads = page.select(".thread");
             System.out.println("Number of threads :" + threads.size());
             for (Element x : threads) {
+                convo = x.html().toString().substring(0, x.html().toString().indexOf('<'));
                 Elements message = x.select(".message");
-                i++;
-                tmp = x.select(".user").first().text();
-                if (map.containsKey(tmp)) {
-                    if (tmp.equals("Gow Tham")) {
-                        if (x.select(".user").size() > 2) {
-                            tmp = x.select(".user").get(1).text() + (Math.random() % 100) + "a";
-                        } else
-                            tmp = x.select(".user").last().text() + (Math.random() % 100) + "b";
-                    } else {
-                        tmp += (Math.random() % 100) + "c";
-                    }
-                }
-                map.put(tmp, message.size());
-                gf.writeStartObject().write("Name", tmp).write("message", message.size()).writeEnd();
+
+                map.put(convo, message.size());
+                gf.writeStartObject().write("Name", convo).write("message", message.size()).writeEnd();
 
             }
         } catch (Exception e) {
@@ -84,7 +75,7 @@ public class Main {
         }
         gf.writeEnd();
         gf.close();
-        System.out.println(map);
+        //System.out.println(map);
         sorted_map.putAll(map);
         System.out.println(sorted_map);
 
