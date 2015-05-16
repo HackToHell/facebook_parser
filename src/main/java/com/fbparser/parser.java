@@ -1,4 +1,4 @@
-package com.company;
+package com.fbparser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-public class Main {
+public class parser {
 
     public static void main(String[] args) throws IOException {
         // write your code here
@@ -41,8 +41,8 @@ public class Main {
 
 
 
-        File input = new File("C:/Users/Gowtham/Downloads/fb/html/messages.htm");
-        File output = new File("C:/Users/Gowtham/Downloads/fb/html/messages_top.json");
+        File input = new File(args[0]);
+        File output = new File(args[1]);
         if (!output.exists()) {
             output.createNewFile();
         } else {
